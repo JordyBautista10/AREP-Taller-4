@@ -1,4 +1,4 @@
-package org.arep.reflexion.annotations;
+package org.arep.Spring.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -6,8 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface ResuestMapping {
-   public String path();
+@Target(ElementType.TYPE)
+public @interface Component {
 
 }
