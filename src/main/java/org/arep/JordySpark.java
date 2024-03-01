@@ -19,7 +19,7 @@ import static org.arep.conection.HttpConection.makeRequest;
  */
 public class JordySpark {
 
-    private static HashMap<String, String> cache = new HashMap<String, String>();   // Key: Movie name and Value: Info about the movie
+    private static final HashMap<String, String> cache = new HashMap<>();   // Key: Movie name and Value: Info about the movie
     private static String serviceURI = "";
     private static Function service = null;
     public static boolean running = false;
@@ -39,7 +39,7 @@ public class JordySpark {
      * @param args por defecto
      * @throws IOException Esta clase es la clase general de excepciones producidas por operaciones de E/S fallidas o interrumpidas.
      */
-    public void start(String[] args) throws IOException, URISyntaxException {
+    public void start(String[] args) throws IOException {
         ServerSocket serverSocket = null;
 
         try {
@@ -109,14 +109,14 @@ public class JordySpark {
     }
 
     private String callService(URI requestUri, String method, OutputStream out) throws IOException, URISyntaxException {
-        // TODO: search how to implement uri with relative path
-        String calledServiceUri = requestUri.getPath().substring(7);
+        // obtenemos el elemento solicitado quitando el inicio /action
+        URI calledServiceUri = new URI(requestUri.getPath().substring(7));
         String output = "HTTP/1.1 200 OK\r\n"
                 + "Content-Type:text/html\r\n"
                 + "\r\n";
         // TODO: make multiple services in MAP, search in the map for the service
         if (method.equals("GET")) {
-            output += httpClientHtml(new URI(requestUri.toString().substring(7)), out);
+            output += httpClientHtml(calledServiceUri, out);
         } else if (method.equals("POST")){
             output += service.handle(cache.keySet().toString());
         }
@@ -196,7 +196,7 @@ public class JordySpark {
         } else {
             Charset charset = StandardCharsets.UTF_8;
             BufferedReader reader = Files.newBufferedReader(file, charset);
-            String line = null;
+            String line;
             while ((line = reader.readLine()) != null){
                 System.out.print(line);
                 outputLine = outputLine + line;

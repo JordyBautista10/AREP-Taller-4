@@ -2,6 +2,6 @@ package org.arep;
 
 public interface Function {
 
-    public String handle(String requestQuery);
+    String handle(String requestQuery);
 
 }

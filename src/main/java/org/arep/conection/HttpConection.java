@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 
 public class HttpConection {
@@ -17,18 +18,21 @@ public class HttpConection {
      */
     public static String makeRequest(String url) throws IOException {
 
-        URL obj = new URL(url);
+        URI uri = URI.create(url);
+        URL obj = uri.toURL();
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestMethod("GET");
 
         //The following invocation perform the connection implicitly before getting the code
         int responseCode = con.getResponseCode();
-        StringBuffer response = new StringBuffer();
+        StringBuilder response = new StringBuilder();
         // Encabezado necesario en todas las peticiones
-        response.append("HTTP/1.1 200 OK\r\n"
-                + "Content-Type:application/json\r\n"
-                + "Access-Control-Allow-Origin: *\r\n"
-                + "\r\n");
+        response.append("""
+                HTTP/1.1 200 OK\r
+                Content-Type:application/json\r
+                Access-Control-Allow-Origin: *\r
+                \r
+                """);
         System.out.println("GET Response Code :: " + responseCode);
 
         if (responseCode == HttpURLConnection.HTTP_OK) { // success
@@ -42,7 +46,7 @@ public class HttpConection {
             in.close();
 
             // print result
-            System.out.println(response.toString());
+            System.out.println(response);
         } else {
             System.out.println("GET request not worked");
         }
