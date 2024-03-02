@@ -117,7 +117,10 @@ Si se quiere añadir un nuevo endpoint para configurar un comportamiento distint
 
 ![image](https://github.com/JordyBautista10/AREP-Taller-4/assets/123812969/ab248e19-ac83-4d4c-8e95-7b18c605e429)
 
-Si quiere añadir otras anotaciones para definir nuevos comportamientos, añadalas de la siguiente forma:
+Si quiere añadir otras anotaciones para definir nuevos comportamientos, añadalas en la carpeta annotations y con la estructura de anotacion de la siguiente forma:
+
+![image](https://github.com/JordyBautista10/AREP-Taller-4/assets/123812969/61cdf303-625d-401f-8377-f410c960ab7c)
+
 
 Si desea que la anotacion anterior sea cargada por MicroSpringBoot, entonces modifique el metodo pojoCargue(). En la siguiente imagen se muestra de color amarillo, si desea añadir una nueva anotacion de clase, entonces añada "|| c.isAnnotationPresent( [nuevaAnotacion].class)", por otro lado si desea añadir una nueva anotacion de metodo, agreguela en la anotacion de color rojo de la misma forma "|| c.isAnnotationPresent( [nuevaAnotacion].class)":
 
