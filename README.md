@@ -1,7 +1,6 @@
-# TALLER 3: MICROFRAMEWORKS WEB
+# TALLER 3: ARQUITECTURAS DE SERVIDORES DE APLICACIONES, META PROTOCOLOS DE OBJETOS, PATRÓN IOC, REFLEXIÓN
 
-Este programa fue creado para simular el microframework Spark a través de funciones lambda, soportando peticiones de tipo GET y POST. También podrá leer archivos alojados en el disco, estos archivos pueden contener las extensiones HTML, JS, CSS o incluso imágenes.
-
+Este programa fue creado para simular el framework Spark junto con el de Springboot, ya que para esta entrega, el código es capaz de escanear las clases del proyecto y determinar cuáles son las que cuentan con anotaciones, tal y como funciona Springboot, además se contara con funciones de reflexión para ejecutar clases desde comandos y desde la ejecución del propio proyecto.
 
 ### Prerequisitos
 
@@ -21,9 +20,17 @@ Para que el código corra de forma satisfactoria y se puedan seguir todos los pa
 
 ## Diseño
 
-La clase contoller tendra como objetivo recibir los respectivos endpoints y parametros que le envie el MicroSpringBoot, ésta obtendra los datos a traves de la clase JordySpark, la cual se encarga de recibir la url y arrancar el servidor. Además, la clase MicroSpringBootde se encargara de invocar los metodos de ControllerSpringBoot.
+La clase contoller tendra como objetivo definir el comportamiento de los respectivos endpoints, si como de los parametros que le envie el MicroSpringBoot: 
 
 ![image](https://github.com/JordyBautista10/AREP-Taller-4/assets/123812969/9f5bb003-6b99-4062-a5c5-ad9699f0951e)
+
+ControllerSpringBoot obtendrá los datos a través de la clase MicroSpringBoot, ya que esta clase contiene un hash con los métodos @ResuestMapping dentro de una clase con la anotación @Component. Para invocar los métodos esta clase analiza el path que le suministran, para luego buscar el método que tenga como llave el path mencionado:
+
+![image](https://github.com/JordyBautista10/AREP-Taller-4/assets/123812969/bf4176f6-557f-42cc-ada6-1518175f19cb)
+
+Ahora JordySpark es la clase que inicia el servidor, recibe peticiones y hace la devolución según el recurso solicitado, por lo cual en esta clase hace uso del método anterior pasándole la URL para que el método pueda comparar la URL con las llaves que tiene guardadas en su hash:
+
+![image](https://github.com/JordyBautista10/AREP-Taller-4/assets/123812969/724ec4a8-7874-4caf-8fbb-6d081a195250)
 
 
 ## Para Comenzar
@@ -52,12 +59,14 @@ Tambien se puede ejecutar desde consola de la siguiente forma:
 
 ![image](https://github.com/JordyBautista10/AREP-Taller-4/assets/123812969/c35000b4-1764-4eef-99ec-070f39f351d3)
 
+Como se puede ver, el servicio de MicroSpringBoot carga todas las clases con las anotaciones ya mencionadas
+
 #### Pruebas
 
 Una vez se ejecuta el proyecto dirijase al browser de su preferencia y coloque la siguiente dirección URL en el navegador, he indique el archivo que desea consultar:
 
 ~~~
-http://localhost:35000/[archivo que desee observar]
+http://localhost:35000/Cliente/[archivo que desee observar]
 ~~~
 
 En este caso colocaremos http://localhost:35000/Cliente/index.html, con el fin de demostrar lo que hace el endpoint /Cliente.
@@ -67,6 +76,12 @@ En este caso colocaremos http://localhost:35000/Cliente/index.html, con el fin d
 Como podemos observar esta es la encargada de retornar los archivos que se encuentren en disco sin importar la extension que este archivo tenga.
 
 ![image](https://github.com/JordyBautista10/AREP-Taller-4/assets/123812969/89a12912-d199-4a9b-9014-1801f578284a)
+
+Para ver una imagen almacenada en la carpeta (resources/public) se usará la siguiente direccion:
+
+~~~
+http://localhost:35000/Cliente/nitro.jpg
+~~~
 
 ![image](https://github.com/JordyBautista10/AREP-Taller-4/assets/123812969/61246d71-2b80-4288-8758-af7fe471d50d)
 
@@ -92,12 +107,13 @@ Es el método el cual actúa como clase main del programa y configura el path qu
 Esta clase funciona como la simulación de Spark, pues tiene los métodos necesarios, para abrir la conexión, recibir las peticiones, tratarlas, ponerles sus respectivos encabezados y enviar la información al cliente. Esta clase define el metodo get que usa la clase App ya mencionada.
 
 #### MicroSpringBoot
+Esta clase se encarga de cargar todas las clases que contengan anotaciones @Component y @ResuestMapping, a los metodos guarda en un hash. Tambien tiene la capacidad de invocar metodos a travez de su hash de metodos.
 
 #### ControllerSpringBoot
+Esta clase define los endpoints que ve van a manejar además de también definir el comportamiento de estos endpoints usando metodos de otras clases o también si el desarrollador lo desea, se puede realizar todo el comportamiento dentro del método, cabe aclarar que los endpoints deben ser diferentes entre sí para evitar conflictos
 
 ### Uso del framework para desarrollador
-
-Si se quiere añadir un nuevo endpoint para configurar un comportamiento distinto, se debe acceder al la clase JordySpark y añadir un nuevo else if donde se indique cuál es el nuevo endpoint y el comportamiento se definiría diferente, también se puede usar la variable "method" si lo que se quiere es restringir o cambiar el comportamiento según el tipo de petición que llegue.
+Si se quiere añadir un nuevo endpoint para configurar un comportamiento distinto, se debe acceder al la clase ControllerSpringBoot y añadir un nuevo metodo donde se indique cuál es el nuevo endpoint a traves de la variable dentro de la anotacion @ResuestMapping. Configure el comportamiento del metodo, la respuesta debe estar en formato byte[], pues es de la forma que JordySpark puede interpretar la informacion recibida para imprimirla
 
 ![image](https://github.com/JordyBautista10/AREP-Taller-3/assets/123812969/28e6f502-9409-41c8-9679-af90f8ff18a4)
 
