@@ -1,4 +1,4 @@
-# TALLER 3: ARQUITECTURAS DE SERVIDORES DE APLICACIONES, META PROTOCOLOS DE OBJETOS, PATRÓN IOC, REFLEXIÓN
+# TALLER 4: ARQUITECTURAS DE SERVIDORES DE APLICACIONES, META PROTOCOLOS DE OBJETOS, PATRÓN IOC, REFLEXIÓN
 
 Este programa fue creado para simular el framework Spark junto con el de Springboot, ya que para esta entrega, el código es capaz de escanear las clases del proyecto y determinar cuáles son las que cuentan con anotaciones, tal y como funciona Springboot, además se contara con funciones de reflexión para ejecutar clases desde comandos y desde la ejecución del propio proyecto.
 
