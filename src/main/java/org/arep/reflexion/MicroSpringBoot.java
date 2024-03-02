@@ -17,37 +17,30 @@ public class MicroSpringBoot {
 
     private static final Map<String, Method> componentes = new HashMap<String, Method>();
 
+    public static void main(String[] args) throws Exception {
+        pojoCargue(args[0]);
+
+        if (args.length == 2) invocarMetodos(args[1], null, null);
+        if (args.length == 3) invocarMetodos(args[1], args[2], null);
+        if (args.length == 4) invocarMetodos(args[1], args[2], args[3]);
+    }
+
     public static void load() throws IllegalArgumentException {
         List<Path> classList = scanRoot();
         String pathAndClass;
 
+            // p es el path de cada clase dentro del directorio src
         for (Path p : classList) {
                 // Las siguientes tres lineas eliminan todos los elementos que impiden que Class.forName() encuentre la clase
             pathAndClass = p.toString().replace("\\", ".");
             if (pathAndClass.startsWith("src.main.java.")) pathAndClass = pathAndClass.replace("src.main.java.", "");
             if (pathAndClass.endsWith(".java")) pathAndClass = pathAndClass. replace(".java", "");
 
-            try {
-                Class<?> c = Class.forName(pathAndClass);
-                System.out.println("clase: " + c.getName());
-                if (c.isAnnotationPresent(Component.class)) {
-                    //Almacenar todos los metodos, en una estructuca llave valor, la llave será el path del web service y el valor son metodos
-                    //TODOS LOS METODOS DEBEN SER ESTATICOS
-                    Method[] metodos = c.getMethods();
-
-                    for (Method m : metodos) {
-                        if (m.isAnnotationPresent(ResuestMapping.class)) {
-                            System.out.println("    metodos: " + m.getName());
-                            componentes.put(m.getAnnotation(ResuestMapping.class).path(), m);
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                System.err.println("Exception" + pathAndClass + ": no es clase java" );
-            }
+                // Verifica las anotaciones @Component y @RquestMapping, si las cumple, las adiciona en componentes (hash)
+            pojoCargue(pathAndClass);
         }
 
-        invocarMetodos("/index");
+        invocarMetodos("/index", null, null);
     }
 
     public static List<Path> scanRoot() {
@@ -65,17 +58,41 @@ public class MicroSpringBoot {
         return fileList;
     }
 
-    public static void invocarMetodos(String pathDelGet){
+    public static void invocarMetodos(String pathDelGet, String param, String param2){
         Method m = componentes.get(pathDelGet);
 
         if (m != null){
             try {
-                System.out.println("Salida: " + m.invoke(null));
+                if (m.getParameterCount()==0) System.out.println("Conteo de parametros" + m.invoke(null));
+                if (m.getParameterCount()==1) m.invoke(null, param);
+                if (m.getParameterCount()==2) m.invoke(null, param, param2);
+
             } catch (Exception e) {
                 System.err.println(e.getMessage());
             }
         }
         //Si llega una ruta enlazada a un componente, se debera ejecutar el compónente, no olvide los encabezados
         //Implemente pasar parametros
+    }
+
+    public static void pojoCargue(String pathAndClass) {
+        try {
+            Class<?> c = Class.forName(pathAndClass);
+            System.out.println("clase: " + c.getName());
+            if (c.isAnnotationPresent(Component.class)) {
+                //Almacenar todos los metodos, en una estructuca llave valor, la llave será el path del web service y el valor son metodos
+                //TODOS LOS METODOS DEBEN SER ESTATICOS
+                Method[] metodos = c.getMethods();
+
+                for (Method m : metodos) {
+                    if (m.isAnnotationPresent(ResuestMapping.class)) {
+                        System.out.println("    metodos: " + m.getName());
+                        componentes.put(m.getAnnotation(ResuestMapping.class).path(), m);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Exception" + pathAndClass + ": no es clase java" );
+        }
     }
 }

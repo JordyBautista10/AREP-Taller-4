@@ -9,6 +9,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.io.ByteArrayOutputStream;
 
@@ -64,7 +66,7 @@ public class JordySpark {
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(
                             clientSocket.getInputStream()));
-            String inputLine, outputLine;
+            String inputLine, outputLine = null;
 
             boolean firstLine = true;
             String uriStr ="";
@@ -82,23 +84,20 @@ public class JordySpark {
                 }
             }
 
-            try {
+            try (OutputStream os = clientSocket.getOutputStream()) {
                 if (uriStr.startsWith("/Busqueda") && uriStr.length() > 12){  // Se asegura de que la uri no tenga busqueda vacia
                     outputLine = cacheSearch(uriStr);
                 } else if (uriStr.startsWith("/action") && uriStr.length() > 7){
                     System.out.println("----------------------------------------------------" + method);
-                    outputLine = callService(new URI(uriStr), method, clientSocket.getOutputStream());
+                    os.write(callService(new URI(uriStr), method));
                 } else {
-                    outputLine = httpClientHtml(new URI(uriStr), clientSocket.getOutputStream());
+                    os.write(httpClientHtml(new URI(uriStr)));
                 }
+                if (outputLine != null) os.write(outputLine.getBytes());
             } catch (Exception e) {
-                outputLine = httpError();
-            }
-
-            try (OutputStream os = clientSocket.getOutputStream()) {
-                os.write(outputLine.getBytes());
-            } catch (IOException e) {
                 System.out.println("Error sending response body");
+                outputLine = httpError();
+                System.err.println(e.getMessage());
             }
 
             out.close();
@@ -108,19 +107,21 @@ public class JordySpark {
         serverSocket.close();
     }
 
-    private String callService(URI requestUri, String method, OutputStream out) throws IOException, URISyntaxException {
+    public static byte[] callService(URI requestUri, String method) throws IOException, URISyntaxException {
         // obtenemos el elemento solicitado quitando el inicio /action
         URI calledServiceUri = new URI(requestUri.getPath().substring(7));
-        String output = "HTTP/1.1 200 OK\r\n"
-                + "Content-Type:text/html\r\n"
-                + "\r\n";
+        String output = "";
         // TODO: make multiple services in MAP, search in the map for the service
-        if (method.equals("GET")) {
-            output += httpClientHtml(calledServiceUri, out);
-        } else if (method.equals("POST")){
+
+        if (method.equals("POST")){
+            output += "HTTP/1.1 200 OK\r\n"
+                    + "Content-Type:text/html\r\n"
+                    + "\r\n";
             output += service.handle(cache.keySet().toString());
+            return output.getBytes();
+        } else  {           // si el metodo es (method.equals("GET"))
+            return httpClientHtml(calledServiceUri);
         }
-        return output;
     }
 
     public static void get(String path, Function service) {
@@ -175,7 +176,7 @@ public class JordySpark {
      * Este metodo retorna una pagina de HTML con la cual se pueden realizar busquedas de peliculas y la informacion
      * @return String de una pagina web de busqueda
      */
-    public static String httpClientHtml(URI requestedUri, OutputStream outStm) throws IOException {
+    public static byte[] httpClientHtml(URI requestedUri) throws IOException {
 
         File fileSrc = new File(requestedUri.getPath());
         String fileType = Files.probeContentType(fileSrc.toPath());
@@ -190,9 +191,13 @@ public class JordySpark {
             BufferedImage image = ImageIO.read(file.toFile());
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(image, fileType.split("/")[1],baos);
-            byte[] imageBytes = baos.toByteArray();
-            outStm.write(outputLine.getBytes());
-            outStm.write(imageBytes);
+
+            ArrayList<Byte> arrayList = new ArrayList<>();
+            for (byte i: outputLine.getBytes()) {arrayList.add(i);}
+            for (byte i: baos.toByteArray()) {arrayList.add(i);}
+            byte[] salida = new byte[arrayList.size()];
+            for (int i = 0; i < salida.length; i++){salida[i]=arrayList.get(i);}
+            return salida;
         } else {
             Charset charset = StandardCharsets.UTF_8;
             BufferedReader reader = Files.newBufferedReader(file, charset);
@@ -201,9 +206,8 @@ public class JordySpark {
                 System.out.print(line);
                 outputLine = outputLine + line;
             }
+            return outputLine.getBytes();
         }
-
-        return outputLine;
     }
 
 }
