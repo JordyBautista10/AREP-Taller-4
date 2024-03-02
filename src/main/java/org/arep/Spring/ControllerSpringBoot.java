@@ -23,6 +23,13 @@ public class ControllerSpringBoot {
 
     @ResuestMapping(path = "/Accion")
     public static byte[] action(String path, String method) throws IOException, URISyntaxException {
-        return JordySpark.callService(new URI(path), method);
+        return JordySpark.callService(URI.create(path), method);
+    }
+
+    @ResuestMapping(path = "/Cliente")
+    public static byte[] cliente(String path) throws IOException, URISyntaxException {
+        path = path.substring(8);
+        System.out.println("Cliente " + path);
+        return JordySpark.httpClientHtml(URI.create(path));
     }
 }

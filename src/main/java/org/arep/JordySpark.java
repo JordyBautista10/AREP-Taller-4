@@ -1,5 +1,7 @@
 package org.arep;
 
+import org.arep.reflexion.MicroSpringBoot;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.net.*;
@@ -87,11 +89,8 @@ public class JordySpark {
             try (OutputStream os = clientSocket.getOutputStream()) {
                 if (uriStr.startsWith("/Busqueda") && uriStr.length() > 12){  // Se asegura de que la uri no tenga busqueda vacia
                     outputLine = cacheSearch(uriStr);
-                } else if (uriStr.startsWith("/action") && uriStr.length() > 7){
-                    System.out.println("----------------------------------------------------" + method);
-                    os.write(callService(new URI(uriStr), method));
                 } else {
-                    os.write(httpClientHtml(new URI(uriStr)));
+                    os.write((byte[]) MicroSpringBoot.invocarMetodos(uriStr,  uriStr, method));
                 }
                 if (outputLine != null) os.write(outputLine.getBytes());
             } catch (Exception e) {
@@ -180,7 +179,7 @@ public class JordySpark {
 
         File fileSrc = new File(requestedUri.getPath());
         String fileType = Files.probeContentType(fileSrc.toPath());
-        System.out.println("filetype----------------------------" + fileType);
+        System.out.println("filetype---------------------------- " + fileType + " ---- " + requestedUri.getPath());
 
         Path file = Paths.get("target/classes/public" + requestedUri.getPath());
         String outputLine =  "HTTP/1.1 200 OK\r\n"

@@ -19,10 +19,13 @@ public class MicroSpringBoot {
 
     public static void main(String[] args) throws Exception {
         pojoCargue(args[0]);
+        Object o = null;
 
-        if (args.length == 2) invocarMetodos(args[1], null, null);
-        if (args.length == 3) invocarMetodos(args[1], args[2], null);
-        if (args.length == 4) invocarMetodos(args[1], args[2], args[3]);
+        if (args.length == 2) o = invocarMetodos(args[1], null, null);
+        if (args.length == 3) o = invocarMetodos(args[1], args[2], null);
+        if (args.length == 4) o = invocarMetodos(args[1], args[2], args[3]);
+
+        System.out.println("respuesta final: " + o.toString());
     }
 
     public static void load() throws IllegalArgumentException {
@@ -58,21 +61,28 @@ public class MicroSpringBoot {
         return fileList;
     }
 
-    public static void invocarMetodos(String pathDelGet, String param, String param2){
-        Method m = componentes.get(pathDelGet);
+    public static Object invocarMetodos(String pathDelGet, String param, String param2){
+
+        Object resp = null;
+        Method m = null;
+
+        for (String path: componentes.keySet()){
+            if (pathDelGet.startsWith(path)) {
+                m = componentes.get(path);
+                break;
+            }
+        }
 
         if (m != null){
             try {
-                if (m.getParameterCount()==0) System.out.println("Conteo de parametros" + m.invoke(null));
-                if (m.getParameterCount()==1) m.invoke(null, param);
-                if (m.getParameterCount()==2) m.invoke(null, param, param2);
-
+                if (m.getParameterCount()==0) resp=  m.invoke(null);
+                if (m.getParameterCount()==1) resp = m.invoke(null, param);
+                if (m.getParameterCount()==2) resp = m.invoke(null, param, param2);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
             }
         }
-        //Si llega una ruta enlazada a un componente, se debera ejecutar el compónente, no olvide los encabezados
-        //Implemente pasar parametros
+        return resp;
     }
 
     public static void pojoCargue(String pathAndClass) {
