@@ -115,10 +115,8 @@ Esta clase define los endpoints que ve van a manejar además de también definir
 ### Uso del framework para desarrollador
 Si se quiere añadir un nuevo endpoint para configurar un comportamiento distinto, se debe acceder al la clase ControllerSpringBoot y añadir un nuevo metodo donde se indique cuál es el nuevo endpoint a traves de la variable dentro de la anotacion @ResuestMapping. Configure el comportamiento del metodo, la respuesta debe estar en formato byte[], pues es de la forma que JordySpark puede interpretar la informacion recibida para imprimirla
 
-![image](https://github.com/JordyBautista10/AREP-Taller-3/assets/123812969/28e6f502-9409-41c8-9679-af90f8ff18a4)
+![image](https://github.com/JordyBautista10/AREP-Taller-4/assets/123812969/ab248e19-ac83-4d4c-8e95-7b18c605e429)
 
-
-  
 ## Versioning
 
 Para el versionamiento se usó [Git](https://git-scm.com). Si necesita volver en alguna versión del código, visite los commits.
